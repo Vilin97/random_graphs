@@ -3,33 +3,39 @@ import Mathlib.Data.Real.Basic
 import Mathlib.MeasureTheory.Integral.Bochner
 import Mathlib.Probability.Moments
 
-open MeasureTheory
-open ProbabilityTheory
+open MeasureTheory ProbabilityTheory NNReal
 
--- Bernoulli random variable X
-variable (X : Bool → ℝ) (hX : ∀ b, X b = if b then 1 else 0)
--- Bernoulli PMF f
-variable (f : PMF Bool) (p : NNReal) (hp : p ≤ 1) (hf: f = PMF.bernoulli p (by simp [hp]))
--- Bernoulli measure μ on Bool
-variable (μ : Measure Bool) (hμ : μ = f.toMeasure) [MeasureSpace Bool]
+-- 0 ≤ p ≤ 1
+variable (p : NNReal) (hp : p ≤ 1)
 
--- the probability of `true` is p, using the PMF
-example : f true = p := by
-  simp only [hf, ENNReal.coe_le_one_iff, hp, PMF.bernoulli_apply, ge_iff_le, ENNReal.one_le_coe_iff,
-    cond_true]
+-- like `hp` but with type `ENNReal`
+lemma hp' : (p : ENNReal) ≤ 1 := by
+  simp [hp]
 
--- the probability of `true` is p, using the measure μ
+-- two random variables X and Y
+variable (X Y : Ω → ℝ)
+-- We don't actually care what the probability space is
+variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
+-- X and Y are Bernoulli. I'm not sure what is the best definition.
+variable
+  (hX : Measure.map (fun ω ↦ cond (X ω = 1) true false) μ = (PMF.bernoulli p (hp' p hp)).toMeasure)
+  (h0Y : μ {w | Y w = 0} = 1-p) (h1Y : μ {w | Y w = 1} = p)
+
+-- X and Y are independent
+variable (hIndep : IndepFun X Y μ)
+
+-- ∫ |X| ∂μ is finite
 @[simp]
-lemma prob_true : μ {true} = p := by
-  simp only [hμ, hf, PMF.toMeasure_apply_fintype, Fintype.univ_bool, Finset.mem_singleton,
-    Set.mem_singleton_iff, Bool.not_eq_true, not_false_eq_true, Finset.sum_insert,
-    Set.indicator_of_mem, PMF.bernoulli_apply, ge_iff_le, ENNReal.one_le_coe_iff, cond_true,
-    Finset.sum_singleton, Set.indicator_of_not_mem, add_zero]
-
-#check prob_true
-#print prob_true
-
-lemma bernoulli_expectation : ∫ x, X x ∂μ = p := by
-  simp [hμ, hX, hf, hp]
-  -- split integral into two parts, {true} and {false}
+lemma integrable : Integrable X μ := by
   sorry
+
+-- ∫ X ∂μ = p
+@[simp]
+lemma bernoulli_expectation : ∫ x, X x ∂μ = p := by
+  -- split integral into two parts, {w | X w = 0} and {w | X w = 1}
+  sorry
+
+-- ∫ X + Y ∂μ = 2p
+lemma bernoulli_sum_expectation : ∫ x, X x + Y x ∂μ = 2*p := by
+  simp only [integrable, integral_add, bernoulli_expectation p]
+  ring
