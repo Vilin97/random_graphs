@@ -18,7 +18,7 @@ variable (X Y : Ω → ℝ)
 variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 -- X and Y are Bernoulli. I'm not sure what is the best definition.
 variable
-  (hX : Measure.map (fun ω ↦ cond (X ω = 1) true false) μ = (PMF.bernoulli p (hp' p hp)).toMeasure)
+  (hX : Measure.map (fun ω ↦ if (X ω = 1) then true else false) μ = (PMF.bernoulli p (hp' p hp)).toMeasure)
   (h0Y : μ {w | Y w = 0} = 1-p) (h1Y : μ {w | Y w = 1} = p)
 
 -- X and Y are independent
