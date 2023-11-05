@@ -1,9 +1,9 @@
-import RandomGraphs.bernoulli
 import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Probability.Independence.Basic
 
 open MeasureTheory ProbabilityTheory BigOperators
 
+-- finite type of vertices
 variable [Fintype V] [DecidableEq V]
 
 -- is e an edge in G?
