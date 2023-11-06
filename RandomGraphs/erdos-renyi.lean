@@ -18,7 +18,7 @@ structure ErdosRenyi
   : Prop :=
   (le_one : p ≤ 1)
   -- probability of an edge is p
-  (bernoulli_edges : ∀ (v w : V), μ {ω | Edge (G ω) ⟦(v, w)⟧} = p)
+  (bernoulli_edges : ∀ (e : Sym2 V), μ {ω | Edge (G ω) e} = p)
   -- edges are independent
   (independent_edges : iIndepFun inferInstance (fun e ω ↦ Edge (G ω) e) μ)
 
