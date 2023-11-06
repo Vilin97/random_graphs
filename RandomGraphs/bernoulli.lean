@@ -20,22 +20,26 @@ variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable
   (hX : Measure.map (fun ω ↦ if (X ω = 1) then true else false) μ = (PMF.bernoulli p (hp' p hp)).toMeasure)
   (h0Y : μ {w | Y w = 0} = 1-p) (h1Y : μ {w | Y w = 1} = p)
-
 -- X and Y are independent
 variable (hIndep : IndepFun X Y μ)
 
+structure Bernoulli
+  (B : Ω → ℕ) (p : NNReal)
+  [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
+  : Prop :=
+  (le_one : p ≤ 1)
+  (prob_0 : μ {w | B w = 0} = 1-p)
+  (prob_1 : μ {w | B w = 1} = p)
+
+#check Bernoulli
+
 -- ∫ |X| ∂μ is finite
 @[simp]
-lemma integrable : Integrable X μ := by
+lemma integrable [Fintype Ω] : Integrable X μ := by
   sorry
 
 -- ∫ X ∂μ = p
 @[simp]
-lemma bernoulli_expectation : ∫ x, X x ∂μ = p := by
+lemma bernoulli_expectation : ∫ ω, X ω ∂μ = p := by
   -- split integral into two parts, {w | X w = 0} and {w | X w = 1}
   sorry
-
--- ∫ X + Y ∂μ = 2p
-lemma bernoulli_sum_expectation : ∫ x, X x + Y x ∂μ = 2*p := by
-  simp only [integrable, integral_add, bernoulli_expectation p]
-  ring
