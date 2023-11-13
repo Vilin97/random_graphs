@@ -29,5 +29,7 @@ lemma bernoulli_expectation_ (B : SimpleFunc Ω ℝ) (p : NNReal) (μ : Measure 
   simp only [ENNReal.coe_toReal, this]
 
 lemma bernoulli_expectation (B : SimpleFunc Ω ℝ) (p : NNReal) (μ : Measure Ω) [IsProbabilityMeasure μ] (h : Bernoulli B p μ) : ∫ ω, B ω ∂μ = p := by
-  -- simp [bernoulli_expectation_]
-  sorry
+  -- rw [integral_eq B]
+  rw [←SimpleFunc.integral_eq_integral B]
+  apply bernoulli_expectation_ B p μ h
+  apply integrable B μ
