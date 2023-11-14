@@ -1,5 +1,7 @@
 import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Probability.Independence.Basic
+import RandomGraphs.bernoulli
+import Init.Classical
 
 open MeasureTheory ProbabilityTheory BigOperators
 
@@ -8,25 +10,47 @@ variable [Fintype V] [DecidableEq V]
 
 -- is e an edge in G?
 def Edge (G : SimpleGraph V) (e : Sym2 V) : Prop := e ∈ G.edgeSet
-def EdgeInd (G : SimpleGraph V) (e : Sym2 V) [Decidable (Edge G e)]: ℕ := if (Edge G e) then 1 else 0
-def NumEdges (G : SimpleGraph V) [∀ e : Sym2 V, Decidable (Edge G e)] : ℕ := ∑ e, EdgeInd G e
+def EdgeInd' (G : SimpleGraph V) (e : Sym2 V) [Decidable (Edge G e)] : ℕ := if (Edge G e) then 1 else 0
+
+@[simp]
+lemma edge_ind_finite_range (G : Ω → SimpleGraph V) (e : Sym2 V) [∀ ω, Decidable (Edge (G ω) e)] : Set.Finite (Set.range fun ω => (EdgeInd' (G ω) e : ℝ)) := by
+  apply @Set.Finite.subset ℝ {0,1} _ (Set.range fun ω => (EdgeInd' (G ω) e : ℝ)) _
+  simp only [Set.mem_singleton_iff, zero_ne_one, Set.finite_singleton, Set.Finite.insert]
+  simp [EdgeInd']
+  rintro x ⟨ω, hx⟩
+  rw [← hx]
+  simp only [Set.mem_singleton_iff, zero_ne_one, Set.mem_insert_iff, ite_eq_right_iff, one_ne_zero,
+    ite_eq_left_iff]
+  exact Classical.em (¬Edge (G ω) e)
+
+-- the SimpleFunc that is 1 on edges and 0 on non-edges
+def EdgeInd (G : Ω → SimpleGraph V) [∀ ω, Decidable (Edge (G ω) e)] [MeasurableSpace Ω] (measurable_edge : ∀ x:ℝ, MeasurableSet {ω | EdgeInd' (G ω) e = x}) : SimpleFunc Ω ℝ :=
+  SimpleFunc.mk (fun ω => EdgeInd' (G ω) e) (measurable_edge) (edge_ind_finite_range G e)
+
+def NumEdges (G : Ω → SimpleGraph V) [∀ e ω, Decidable (Edge (G ω) e)] [MeasurableSpace Ω] (measurable_edge : ∀ (e : Sym2 V) (x : ℝ), MeasurableSet {ω | EdgeInd' (G ω) e = x}) : SimpleFunc Ω ℝ :=
+  ∑ e, (EdgeInd G (measurable_edge e))
 
 -- Erdos-Renyi random graph
 structure ErdosRenyi
   (G : Ω → SimpleGraph V) (p : NNReal) [∀ ω e, Decidable (Edge (G ω) e)]
-  [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
+  [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ] (measurable_edge : ∀ (e : Sym2 V) (x : ℝ), MeasurableSet {ω | EdgeInd' (G ω) e = x})
   : Prop :=
   (le_one : p ≤ 1)
-  -- probability of an edge is p
-  (bernoulli_edges : ∀ (e : Sym2 V), μ {ω | Edge (G ω) e} = p)
+  -- edges are bernoulli distributed
+  (bernoulli_edges : ∀ (e : Sym2 V), Bernoulli ((EdgeInd G (measurable_edge e)) : SimpleFunc Ω ℝ) p μ)
   -- edges are independent
   (independent_edges : iIndepFun inferInstance (fun e ω ↦ Edge (G ω) e) μ)
 
 variable (p : NNReal) (hp : p ≤ 1)
 variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
+variable (measurable_edge : ∀ (e : Sym2 V) (x : ℝ), MeasurableSet {ω | EdgeInd' (G ω) e = x})
 
-#check ErdosRenyi G p μ
+lemma coe_sum (f : I → (SimpleFunc Ω ℝ)) [Fintype I] : (↑(∑ i, f i) : Ω → ℝ) = ∑ i, (f i : Ω → ℝ) := by
+  sorry
 
-theorem expected_edge_count (h : ErdosRenyi G p μ) : ∫ ω, (NumEdges (G ω) : ℝ) ∂μ = p * (Fintype.card V).choose 2 := by
+theorem expected_edge_count (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (NumEdges G measurable_edge) ω ∂μ = p * (Fintype.card V).choose 2 := by
+  simp [NumEdges]
+  rw [coe_sum]
+  rw [integral_finset_sum]
   sorry
