@@ -1,6 +1,7 @@
 import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Probability.Independence.Basic
 import RandomGraphs.bernoulli
+import RandomGraphs.simple_func
 import Init.Classical
 
 open MeasureTheory ProbabilityTheory BigOperators
@@ -46,11 +47,10 @@ variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 variable (measurable_edge : ∀ (e : Sym2 V) (x : ℝ), MeasurableSet {ω | EdgeInd' (G ω) e = x})
 
-lemma coe_sum (f : I → (SimpleFunc Ω ℝ)) [Fintype I] : (↑(∑ i, f i) : Ω → ℝ) = ∑ i, (f i : Ω → ℝ) := by
-  sorry
+lemma expected_edge (e : Sym2 V) (h : Bernoulli ((EdgeInd G (measurable_edge e)) : SimpleFunc Ω ℝ) p μ) : ∫ ω, (EdgeInd G (measurable_edge e)) ω ∂μ = p := bernoulli_expectation h
 
 theorem expected_edge_count (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (NumEdges G measurable_edge) ω ∂μ = p * (Fintype.card V).choose 2 := by
   simp [NumEdges]
-  rw [coe_sum]
   rw [integral_finset_sum]
+  -- rw [expected_edge p μ G measurable_edge h.bernoulli_edges]
   sorry
