@@ -14,7 +14,7 @@ variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 
 
 -- Degree(G, v) = Edge indicators of the form G {v, w} summed over all vertices w
-def Degree (G : SimpleGraph V) (v : V) [∀ e : Sym2 V, Decidable (Edge G e)]: ℕ := ∑ w, EdgeInd G ⟦(v, w)⟧
+def Degree (G : SimpleGraph V) (v : V) [∀ e : Sym2 V, Decidable (Edge G e)]: ℕ := ∑ w, EdgeInd' G ⟦(v, w)⟧
 
 --do not need 0 ≤ k ≤ n - 1 since choose returns 0 outside of these bounds
 theorem degree_distribution (h : ErdosRenyi G p μ) (v : V) (k : ℕ):
