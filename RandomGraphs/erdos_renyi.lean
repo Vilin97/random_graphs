@@ -58,3 +58,6 @@ theorem expected_edge_count (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (N
   }
   simp only [exp_edge, Finset.sum_const, nsmul_eq_mul, Finset.card_univ, Fintype.card]
   simp only [Finset.mem_univ, integrable, forall_true_left, implies_true]
+
+-- TODO: switch from Sym2 to the type of distinct pairs. An edge like [a,a] should not be allowed.
+-- TODO: clean up the measurable_edge assumption. It should not be necessary to drag it around everywhere.
