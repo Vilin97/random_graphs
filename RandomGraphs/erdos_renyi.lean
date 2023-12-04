@@ -39,7 +39,7 @@ structure ErdosRenyi
   : Prop :=
   (le_one : p ≤ 1)
   -- edges are bernoulli distributed
-  (bernoulli_edges : ∀ (e : Sym2 V), Bernoulli ((EdgeInd G (measurable_edge e)) : SimpleFunc Ω ℝ) p μ)
+  (bernoulli_edges : ∀ {e : Sym2 V}, (¬e.IsDiag) → Bernoulli ((EdgeInd G (measurable_edge e)) : SimpleFunc Ω ℝ) p μ)
   -- edges are independent
   (independent_edges : iIndepFun inferInstance (fun e ω ↦ Edge (G ω) e) μ)
 
@@ -48,16 +48,33 @@ variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 variable (measurable_edge : ∀ (e : Sym2 V) (x : ℝ), MeasurableSet {ω | EdgeInd' (G ω) e = x})
 
-theorem expected_edge_count (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (NumEdges G measurable_edge) ω ∂μ = (Fintype.card (Sym2 V)) * p := by
+@[simp]
+lemma diag_edge_ind (e : Sym2 V) (h : e.IsDiag) : ∀ω, (EdgeInd G (measurable_edge e)) ω = 0 := by
+  intro ω
+  simp only [EdgeInd, EdgeInd', Edge, Nat.cast_eq_zero]
+  have : e ∉ (G ω).edgeSet := by
+    intro he
+    exfalso
+    exact SimpleGraph.not_isDiag_of_mem_edgeSet (G ω) he h
+  simp only [this, ite_false]
+
+@[simp]
+lemma expected_diag_edge_ind (e : Sym2 V) (h : e.IsDiag) : ∫ ω, (EdgeInd G (measurable_edge e)) ω ∂μ = 0 := by
+  simp only [diag_edge_ind G measurable_edge e h, integral_zero]
+
+@[simp]
+lemma expected_non_diag_edge_ind (e : Sym2 V) (he : ¬e.IsDiag) (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (EdgeInd G (measurable_edge e)) ω ∂μ = p := by
+  simp only [bernoulli_expectation (h.bernoulli_edges he)]
+
+lemma num_edges_skip_diag (h : ErdosRenyi G p μ measurable_edge) : NumEdges G measurable_edge = ∑ e in (Finset.univ.filter (fun e => ¬e.IsDiag)), (EdgeInd G (measurable_edge e)) := by
+sorry
+
+theorem expected_edge_count (h : ErdosRenyi G p μ measurable_edge) : ∫ ω, (NumEdges G measurable_edge) ω ∂μ = (Fintype.card (Sym2 V) - n) * p := by
   simp only [NumEdges, SimpleFunc.coe_sum, Finset.sum_apply]
   rw [integral_finset_sum]
-  have exp_edge : ∀ e : Sym2 V, ∫ ω, (EdgeInd G (measurable_edge e)) ω ∂μ = p
-  {
-    intro e
-    exact bernoulli_expectation (h.bernoulli_edges e)
-  }
-  simp only [exp_edge, Finset.sum_const, nsmul_eq_mul, Finset.card_univ, Fintype.card]
-  simp only [Finset.mem_univ, integrable, forall_true_left, implies_true]
+  sorry
+  -- simp only [exp_edge, Finset.sum_const, nsmul_eq_mul, Finset.card_univ, Fintype.card]
+  -- simp only [Finset.mem_univ, integrable, forall_true_left, implies_true]
 
 -- TODO: switch from Sym2 to the type of distinct pairs. An edge like [a,a] should not be allowed.
 -- TODO: clean up the measurable_edge assumption. It should not be necessary to drag it around everywhere.
