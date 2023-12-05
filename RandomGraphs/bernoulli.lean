@@ -3,6 +3,7 @@ import Mathlib.Probability.Moments
 
 open MeasureTheory ProbabilityTheory NNReal
 
+-- Bernoulli random variable
 structure Bernoulli
   [MeasurableSpace Ω]
   (B : SimpleFunc Ω ℝ) (p : NNReal)
