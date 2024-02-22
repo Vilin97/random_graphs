@@ -12,7 +12,6 @@ variable [Fintype V] [DecidableEq V]
 variable [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
 variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 
-
 -- the expected value of isolated vertex indicator is (1-p)^(n-1)
 theorem isolated_vertex_expectation (h : ErdosRenyi G p μ) (hn : Fintype.card V = n) (vi : V) : ∫ ω, (IsolatedVertexInd G vi) ω ∂μ = (1 - p)^(n - 1) := by
   simp only [bernoulli_expectation (h.bernoulli_edges)]
