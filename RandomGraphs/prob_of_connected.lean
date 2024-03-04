@@ -3,6 +3,9 @@ import RandomGraphs.isolated_vertex
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Data.Complex.Exponential
 import Mathlib.Combinatorics.SimpleGraph.Connectivity
+import Mathlib.Order.Filter.Basic
+import Mathlib.Order.Filter.AtTopBot
+import Mathlib.Topology.MetricSpace.PseudoMetric
 
 #check Real.log
 #check Real.exp
@@ -22,6 +25,6 @@ variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 -- theorem isolated_vertices_ingraph_expectation  (h : ErdosRenyi G p μ) (hn : Fintype.card V = n) (vi : V): ∫ ω, (isolated_vertex_3 G vi) ω ∂μ = n*(1 - p)^(n - 1) := by
 --sorry
 
--- probability of connected graph is exp(-exp(-c))
-theorem probability_of_connected (hp : p = ((Real.log n) + c)/n) (hG : ErdosRenyi G (Real.toNNReal p) μ) : μ { ω | (G ω).Connected} = (Real.toNNReal (Real.exp (-Real.exp (-c)))) := by
+-- lim n → infinity (probability of connected graph) is exp(-exp(-c))
+theorem probability_of_connected (hp : p = ((Real.log n) + c)/n) (hG : ErdosRenyi G (Real.toNNReal p) μ) : Filter.tendsto (λ (n: ℕ → ℝ) μ { ω | (G ω).Connected} filter.at_top (nhds (Real.toNNReal (Real.exp (-Real.exp (-c)))))):= by
 sorry
