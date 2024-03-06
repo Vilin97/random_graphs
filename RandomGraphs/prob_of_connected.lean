@@ -26,5 +26,39 @@ variable (G : Ω → SimpleGraph V) [∀ ω e, Decidable (Edge (G ω) e)]
 --sorry
 
 -- lim n → infinity (probability of connected graph) is exp(-exp(-c))
-theorem probability_of_connected (hp : p = ((Real.log n) + c)/n) (hG : ErdosRenyi G (Real.toNNReal p) μ) : Filter.tendsto (λ (n: ℕ → ℝ) μ { ω | (G ω).Connected} filter.at_top (nhds (Real.toNNReal (Real.exp (-Real.exp (-c)))))):= by
-sorry
+-- theorem probability_of_connected (hp : p = ((Real.log n) + c)/n) (hG : ErdosRenyi G (Real.toNNReal p) μ) : Filter.tendsto (λ (n: ℕ → ℝ) μ { ω | (G ω).Connected} filter.at_top (nhds (Real.toNNReal (Real.exp (-Real.exp (-c)))))):= by
+-- sorry
+
+-- theorem taylor_series_log_expansion (x : ℝ) (hx: |x| < 1) : Filter.TendsTo (λ (n : ℕ) ∑ i in finset.range n) (-(x^i)/i) (log (1 - x)) := by
+--   sorry
+
+
+
+
+-- Things that don't really make sense (but that I didn't want to delete yet?):
+
+-- variable (n : ℕ)
+-- variable (c: ℝ)
+-- def probability := (n + c)/n
+-- Real.toNNReal ((Real.log n) + c)/ n
+
+-- def probability: (Real.toNNReal ((Real.log n) + c)/ n) := by
+--   sorry
+
+-- def ErdosRenyi_n_p : ErdosRenyi G p μ := by
+--   sorry
+
+-- -- This is a method of defining the probability that no vertex is isolated
+-- -- or saying the expected number of isolated vertices is 0
+-- -- so E(X_0) = n(1 - p)^(n-1)
+-- def expected_isolated (n: ℕ) (c: R): n + c := by
+--   sorry
+
+-- def connected_probability (ErdosRenyi G p μ): () := by
+--   sorry
+
+-- theorem main_theorem (c : ℝ): Filter.TendsTo (G) filter.atTop (nhds (Real.exp (-Real.exp (-c)))) := by
+--   sorry
+-- theorem main_theorem (c: ℝ) (ErdosRenyi G p μ): Filter.TendsTo ()
+
+-- {ω | (G ω).Connected} filter.atTop (nhds (Real.toNNReal (Real.exp (-Real.exp (-c)))))
